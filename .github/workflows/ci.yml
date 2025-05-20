@@ -12,7 +12,7 @@ jobs:
 
     services:
       petclinic:
-        image: springframeworkguru/spring5-pet-clinic
+        image: springcommunity/spring-framework-petclinic
 
         ports:
           - 8080:8080
