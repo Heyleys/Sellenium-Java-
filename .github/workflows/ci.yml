@@ -10,6 +10,17 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    services:
+      petclinic:
+        image: springcommunity/spring-petclinic-rest
+        ports:
+          - 8080:9966
+        options: >-
+          --health-cmd="curl -f http://localhost:9966/petclinic/api/owners || exit 1"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -19,6 +30,17 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '21'
+
+      - name: Wait for PetClinic to be healthy
+        run: |
+          for i in {1..30}; do
+            if curl -s http://localhost:8080/petclinic/api/owners; then
+              echo "PetClinic is up!"
+              break
+            fi
+            echo "Waiting for PetClinic..."
+            sleep 5
+          done
 
       - name: Build with Maven
         run: ./mvnw clean test
